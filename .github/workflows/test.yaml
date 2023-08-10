@@ -23,7 +23,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5434:5432
+          - 5432:5432
 
     steps:
       - name: Set up Go 1.x
@@ -46,7 +46,7 @@ jobs:
         name: Migrate Postgres DB
         uses: Ikeh-Akinyemi/composite-github-action@v3
         with:
-          database_url: 'postgres://root:c16bc0af8840ef353a2a51e06b9ef568@localhost:5434/earthly_db?sslmode=disable'
+          database_url: 'postgres://root:c16bc0af8840ef353a2a51e06b9ef568@localhost:5432/earthly_db?sslmode=disable'
           migration_files_path: db/migrations
 
       - name: Report migration status
