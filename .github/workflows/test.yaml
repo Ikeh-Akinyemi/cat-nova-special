@@ -1,16 +1,58 @@
 name: Test running composite github action
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  hello_world_job:
+  database-migration-ci:
+    name: A job to spin up a Postgres service and migrate it.
     runs-on: ubuntu-latest
-    name: A job to say hello
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: c16bc0af8840ef353a2a51e06b9ef568
+          POSTGRES_DB: earthly_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5434:5432
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: ^1.20
+        id: go
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - id: foo
         uses: Ikeh-Akinyemi/composite-github-action@v2
         with:
           who-to-greet: 'Mona the Octocat'
       - run: echo random-number ${{ steps.foo.outputs.random-number }}
+        shell: bash
+      
+      - id: postgres-migration
+        name: Migrate Postgres DB
+        uses: Ikeh-Akinyemi/composite-github-action@v3
+        with:
+          database_url: 'postgres://root:c16bc0af8840ef353a2a51e06b9ef568@localhost:5434/earthly_db?sslmode=disable'
+          migration_files_path: db/migrations
+
+      - name: Report migration status
+        run: echo report-status ${{ steps.postgres-migration.outputs.migration_report }}
+        shell: bash
+      
+      - name: Run the main.go file
+        run: go run main.go -username=root -password=c16bc0af8840ef353a2a51e06b9ef568 -dbname=earthly_db
         shell: bash
