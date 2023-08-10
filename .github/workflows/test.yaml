@@ -34,13 +34,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - id: foo
-        uses: Ikeh-Akinyemi/composite-github-action@v2
-        with:
-          who-to-greet: 'Mona the Octocat'
-      - run: echo random-number ${{ steps.foo.outputs.random-number }}
-        shell: bash
       
       - id: postgres-migration
         name: Migrate Postgres DB
