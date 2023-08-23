@@ -34,7 +34,7 @@ jobs:
         uses: Ikeh-Akinyemi/composite-github-action@v5
         with:
           database_url: 'postgres://root:c16bc0af8840ef353a2a51e06b9ef568@localhost:5432/earthly_db?sslmode=disable'
-          migration_files_source: 'github://Ikeh-Akinyemi/cat-nova-special?dir=db/migrations'
+          migration_files_source: 'file://db/migrations'
 
       - name: Report migration status
         run: echo report-status ${{ steps.postgres-migration.outputs.migration_report }}
